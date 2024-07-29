@@ -1,0 +1,69 @@
+﻿@page "/doctors"
+
+@using Microsoft.AspNetCore.Components.Web
+@using System.Net.Http
+@using System.Net.Http.Json
+@using Clinic.Data
+@using Clinic.Data.Enums
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<HeadContent>
+	<link href="css/formulario.css" rel="stylesheet" />
+</HeadContent>
+
+<h3>Doctores</h3>
+
+<div class="row">
+	<div class="col-12 mb-2">
+		<button class="btn btn-primary" @onclick="CreateNew">Nuevo</button>
+	</div>
+</div>
+
+<table class="table">
+	<thead>
+		<tr>
+			<td>Nombre</td>
+			<td>Apellido</td>
+			<td>Numero de telefono</td>			
+			<td>DNI</td>
+			<td>Especialidad</td>
+			<td>N° de Licencia</td>
+			<td></td>
+		</tr>
+	</thead>
+	<tbody>
+		@if (response != null && response.Body != null)
+		{
+			foreach (var doc in response.Body)
+			{
+				<tr>
+					<td>@doc.Person.FirstName</td>
+					<td>@doc.Person.LastName</td>
+					<td>@doc.Person.PhoneNumber</td>
+					<td>@doc.Person.DNI</td>
+					<td>@doc.Speciallity.GetDisplayText()</td>
+					<td>@doc.LicenseNumber</td>
+					<td>
+						<a href="/doctorform/@doc.DoctorId.ToString()">Editar</a>
+						<a href="/deletedoctor/@doc.DoctorId.ToString()">Eliminar</a>
+					</td>
+				</tr>
+			}
+		}
+	</tbody>	
+</table>
+
+@code {
+
+	private void CreateNew()
+	{
+		NavigationManager.NavigateTo("/doctorform");
+	}
+
+	public string Url = "/api/Doctor/GetAll";
+	public BaseResponse<List<Doctor>> response = new BaseResponse<List<Doctor>>();
+
+	protected override async Task OnInitializedAsync() =>
+		response = await Http.GetFromJsonAsync<BaseResponse<List<Doctor>>>(Url);
+}

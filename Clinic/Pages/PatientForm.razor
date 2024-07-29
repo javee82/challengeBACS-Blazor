@@ -1,0 +1,116 @@
+﻿@page "/patientform"
+@page "/patientform/{Id}"
+
+@using Clinic.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@using Clinic.Data.RequestAndResponses.Request
+@using System.Text.Json
+
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h3>Paciente Form</h3>
+
+<EditForm Model="@patient">
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">Nombre</label>
+		<div class="col-sm-9">
+			<InputText class="form-control" @bind-Value="@patient.FirstName"></InputText>
+		</div>
+	</div>
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">Apellido</label>
+		<div class="col-sm-9">
+			<InputText class="form-control" @bind-Value="@patient.LastName"></InputText>
+		</div>
+	</div>
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">Numero de Telefono</label>
+		<div class="col-sm-9">
+			<InputText class="form-control" @bind-Value="@patient.PhoneNumber"></InputText>
+		</div>
+	</div>
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">Fecha de Nacimiento</label>
+		<div class="col-sm-9">
+			<InputDate class="form-control" @bind-Value="@patient.DateOfBirth"></InputDate>
+		</div>
+	</div>
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">DNI</label>
+		<div class="col-sm-9">
+			<InputNumber class="form-control" @bind-Value="@patient.DNI"></InputNumber>
+		</div>
+	</div>
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">N° de Obra Social</label>
+		<div class="col-sm-9">
+			<InputText class="form-control" @bind-Value="@patient.SocialWorkNumber"></InputText>
+		</div>
+	</div>
+	<div class="form-group row mb-1">
+		<div class="col-sm-12">
+			<button class="btn btn-primary" @onclick="Save">Guardar</button>
+		</div>
+	</div>
+</EditForm>
+
+@code {
+
+	[Parameter]
+	public string? Id { get; set; }
+	CreatePatientRequest patient = new CreatePatientRequest();
+	BaseResponse<Patient> baseResponse = new BaseResponse<Patient>();
+	public string Url = "/api/Patient";
+
+	private async Task Save()
+	{
+		if (!string.IsNullOrEmpty(Id))
+		{
+			patient.Id = Id;
+			var response = await Http.PutAsJsonAsync<CreatePatientRequest>(Url, patient);
+			baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Patient>>().Result;
+		}
+		else
+		{
+			var response = await Http.PostAsJsonAsync<CreatePatientRequest>(Url, patient);
+			baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Patient>>().Result;
+		}
+		NavigationManager.NavigateTo("/patients");
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (!string.IsNullOrEmpty(Id))
+		{
+			try
+			{
+				baseResponse = await Http.GetFromJsonAsync<BaseResponse<Patient>>(Url + "?Id=" + Id);
+				if (baseResponse != null && baseResponse.Body != null)
+				{
+					MapPatientToRequest(baseResponse.Body);
+				}
+				else
+				{
+					Console.WriteLine("Patient not found.");
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Exception: {ex.Message}");
+			}
+		}
+	}
+
+	private void MapPatientToRequest(Patient model)
+	{
+		patient.FirstName = model.Person.FirstName;
+		patient.LastName = model.Person.LastName;
+		patient.PhoneNumber = model.Person.PhoneNumber;
+		patient.DateOfBirth = model.Person.DateOfBirth;
+		patient.DNI = model.Person.DNI;
+		patient.SocialWorkNumber = model.SocialWorkNumber;
+	}
+
+}

@@ -1,0 +1,129 @@
+﻿@page "/doctorform"
+@page "/doctorform/{Id}"
+
+@using Clinic.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@using Clinic.Data.Enums
+@using Clinic.Data.RequestAndResponses.Request
+@using System.Text.Json
+
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h3>Doctor Form</h3>
+
+<EditForm Model="@doctor">
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">Nombre</label>
+		<div class="col-sm-9">
+			<InputText class="form-control" @bind-Value="@doctor.FirstName"></InputText>
+		</div>
+	</div>
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">Apellido</label>
+		<div class="col-sm-9">
+			<InputText class="form-control" @bind-Value="@doctor.LastName"></InputText>
+		</div>
+	</div>
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">Numero de Telefono</label>
+		<div class="col-sm-9">
+			<InputText class="form-control" @bind-Value="@doctor.PhoneNumber"></InputText>
+		</div>
+	</div>
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">Fecha de Nacimiento</label>
+		<div class="col-sm-9">			
+			<InputDate class="form-control" @bind-Value="@doctor.DateOfBirth"></InputDate>
+		</div>
+	</div>
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">DNI</label>
+		<div class="col-sm-9">
+			<InputNumber class="form-control" @bind-Value="@doctor.DNI"></InputNumber>
+		</div>
+	</div>	
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">Especialidad</label>
+		<div class="col-sm-9">
+			<InputSelect @bind-Value="@doctor.Speciallity">
+				@foreach (Data.Enums.PersonEnum.MedicalSpeciallity speciallity in Enum.GetValues(typeof(Data.Enums.PersonEnum.MedicalSpeciallity)))
+				{
+					<option value="@speciallity">@speciallity.GetDisplayText()</option>
+				}
+			</InputSelect>
+		</div>
+	</div>
+	<div class="form-group row mb-1">
+		<label class="col-sm-3">Licence Number</label>
+		<div class="col-sm-9">
+			<InputText class="form-control" @bind-Value="@doctor.LicenseNumber"></InputText>
+		</div>
+	</div>
+	<div class="form-group row mb-1">		
+		<div class="col-sm-12">
+			<button class="btn btn-primary" @onclick="Save">Save</button>
+		</div>
+	</div>
+</EditForm>
+
+@code {
+
+	[Parameter]
+	public string? Id { get; set; }
+	CreateDoctorRequest doctor = new CreateDoctorRequest();
+	BaseResponse<Doctor> baseResponse = new BaseResponse<Doctor>();
+	public string Url = "/api/Doctor";
+
+	private async Task Save()
+	{
+		if (!string.IsNullOrEmpty(Id))
+		{
+			doctor.Id = Id;
+			var response = await Http.PutAsJsonAsync<CreateDoctorRequest>(Url, doctor);
+			baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Doctor>>().Result;
+		}
+		else
+		{
+			var response = await Http.PostAsJsonAsync<CreateDoctorRequest>(Url, doctor);
+			baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Doctor>>().Result;
+		}		
+		NavigationManager.NavigateTo("/doctors");
+	}
+	
+	protected override async Task OnInitializedAsync()
+	{
+		if (!string.IsNullOrEmpty(Id))
+		{
+			try
+			{
+				baseResponse = await Http.GetFromJsonAsync<BaseResponse<Doctor>>(Url + "?Id=" + Id);
+				if (baseResponse != null && baseResponse.Body != null)
+				{
+					MapDoctorToRequest(baseResponse.Body);
+				}
+				else
+				{
+					Console.WriteLine("Doctor not found.");
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Exception: {ex.Message}");
+			}
+		}
+	}
+
+	private void MapDoctorToRequest(Doctor model)
+	{
+		doctor.FirstName = model.Person.FirstName;
+		doctor.LastName = model.Person.LastName;
+		doctor.PhoneNumber = model.Person.PhoneNumber;
+		doctor.DateOfBirth = model.Person.DateOfBirth;
+		doctor.DNI = model.Person.DNI;
+		doctor.Speciallity = model.Speciallity;
+		doctor.LicenseNumber = model.LicenseNumber;
+	}
+	
+}
