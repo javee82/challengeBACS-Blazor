@@ -26,14 +26,6 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291bnRlci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/javie/Documents/Challenges/Clinic/Clinic/Pages/DeleteDoctor.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGVsZXRlRG9jdG9yLnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/javie/Documents/Challenges/Clinic/Clinic/Pages/DeletePatient.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGVsZXRlUGF0aWVudC5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = 
-
 [C:/Users/javie/Documents/Challenges/Clinic/Clinic/Pages/DoctorForm.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yRm9ybS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 

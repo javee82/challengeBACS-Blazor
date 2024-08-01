@@ -19,6 +19,8 @@ builder.Services.AddCors(options =>
                           builder.WithOrigins("*");
                       });
 });
+builder.Services.AddBlazorBootstrap();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -72,3 +72,14 @@ C:\Users\javie\Documents\Challenges\Clinic\Clinic\obj\Debug\net6.0\refint\Clinic
 C:\Users\javie\Documents\Challenges\Clinic\Clinic\obj\Debug\net6.0\Clinic.pdb
 C:\Users\javie\Documents\Challenges\Clinic\Clinic\obj\Debug\net6.0\Clinic.genruntimeconfig.cache
 C:\Users\javie\Documents\Challenges\Clinic\Clinic\obj\Debug\net6.0\ref\Clinic.dll
+C:\Users\javie\Documents\Challenges\Clinic\Clinic\obj\Debug\net6.0\Clinic.sourcelink.json
+C:\Users\javie\Documents\Challenges\Clinic\Clinic\bin\Debug\net6.0\BlazorBootstrap.dll
+C:\Users\javie\Documents\Challenges\Clinic\Clinic\bin\Debug\net6.0\Microsoft.AspNetCore.Authorization.dll
+C:\Users\javie\Documents\Challenges\Clinic\Clinic\bin\Debug\net6.0\Microsoft.AspNetCore.Components.dll
+C:\Users\javie\Documents\Challenges\Clinic\Clinic\bin\Debug\net6.0\Microsoft.AspNetCore.Components.Forms.dll
+C:\Users\javie\Documents\Challenges\Clinic\Clinic\bin\Debug\net6.0\Microsoft.AspNetCore.Components.Web.dll
+C:\Users\javie\Documents\Challenges\Clinic\Clinic\bin\Debug\net6.0\Microsoft.AspNetCore.Metadata.dll
+C:\Users\javie\Documents\Challenges\Clinic\Clinic\bin\Debug\net6.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\javie\Documents\Challenges\Clinic\Clinic\bin\Debug\net6.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\javie\Documents\Challenges\Clinic\Clinic\bin\Debug\net6.0\Microsoft.JSInterop.dll
+C:\Users\javie\Documents\Challenges\Clinic\Clinic\bin\Debug\net6.0\System.IO.Pipelines.dll

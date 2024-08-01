@@ -45,8 +45,8 @@
 					<td>@doc.Speciallity.GetDisplayText()</td>
 					<td>@doc.LicenseNumber</td>
 					<td>
-						<a href="/doctorform/@doc.DoctorId.ToString()">Editar</a>
-						<a href="/deletedoctor/@doc.DoctorId.ToString()">Eliminar</a>
+						<a class="btn btn-link" href="/doctorform/@doc.DoctorId.ToString()">Editar</a>
+						<a class="btn btn-link" nohref @onclick="() => OnShowModalClick(doc)">Eliminar</a>
 					</td>
 				</tr>
 			}
@@ -54,16 +54,59 @@
 	</tbody>	
 </table>
 
+<Modal @ref="modal" Title="Modal title">
+	<BodyTemplate>
+		Deseas eliminar a paciente: @name ?
+	</BodyTemplate>
+	<FooterTemplate>
+		<Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Cerrar</Button>
+		<Button Color="ButtonColor.Primary" @onclick="Eliminar">Eliminar</Button>
+	</FooterTemplate>
+</Modal>
+
 @code {
+
+	private string name;
+	private string Id;
+	public string UrlDelete = "/api/Doctor";
+	public string Url = "/api/Doctor/GetAll";
+	BaseResponse<Doctor> baseResponse = new BaseResponse<Doctor>();
+	public BaseResponse<List<Doctor>> response = new BaseResponse<List<Doctor>>();
 
 	private void CreateNew()
 	{
 		NavigationManager.NavigateTo("/doctorform");
-	}
-
-	public string Url = "/api/Doctor/GetAll";
-	public BaseResponse<List<Doctor>> response = new BaseResponse<List<Doctor>>();
+	}	
 
 	protected override async Task OnInitializedAsync() =>
 		response = await Http.GetFromJsonAsync<BaseResponse<List<Doctor>>>(Url);
+
+	private async Task Eliminar()
+	{
+		var response = await Http.DeleteAsync(UrlDelete + "?Id=" + Id);
+		baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Doctor>>().Result;
+		name = string.Empty;
+		Id = string.Empty;
+		await OnHideModalClick();
+		NevigateToYourUrl();
+	}
+
+	private Modal modal;
+
+	private async Task OnShowModalClick(Doctor doc)
+	{
+		name = doc.Person.FirstName + " " + doc.Person.LastName;
+		Id = doc.DoctorId.ToString();
+		await modal?.ShowAsync();
+	}
+
+	private async Task OnHideModalClick()
+	{
+		await modal?.HideAsync();
+	}
+
+	void NevigateToYourUrl()
+	{
+		NavigationManager.NavigateTo("/doctors", true);
+	}
 }

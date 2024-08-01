@@ -17,32 +17,37 @@
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Nombre</label>
 		<div class="col-sm-9">
-			<InputText class="form-control" @bind-Value="@doctor.FirstName"></InputText>
+			<InputText class="form-control" @bind-Value="doctor.FirstName"></InputText>
 		</div>
+		<ValidationMessage For="@(() => doctor.FirstName)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Apellido</label>
 		<div class="col-sm-9">
-			<InputText class="form-control" @bind-Value="@doctor.LastName"></InputText>
+			<InputText class="form-control" @bind-Value="doctor.LastName"></InputText>
 		</div>
+		<ValidationMessage For="@(() => doctor.LastName)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Numero de Telefono</label>
 		<div class="col-sm-9">
-			<InputText class="form-control" @bind-Value="@doctor.PhoneNumber"></InputText>
+			<InputText class="form-control" @bind-Value="doctor.PhoneNumber"></InputText>
 		</div>
+		<ValidationMessage For="@(() => doctor.PhoneNumber)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Fecha de Nacimiento</label>
 		<div class="col-sm-9">			
-			<InputDate class="form-control" @bind-Value="@doctor.DateOfBirth"></InputDate>
+			<InputDate class="form-control" @bind-Value="doctor.DateOfBirth"></InputDate>
 		</div>
+		<ValidationMessage For="@(() => doctor.DateOfBirth)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">DNI</label>
 		<div class="col-sm-9">
-			<InputNumber class="form-control" @bind-Value="@doctor.DNI"></InputNumber>
+			<InputNumber class="form-control" @bind-Value="doctor.DNI"></InputNumber>
 		</div>
+		<ValidationMessage For="@(() => doctor.DNI)" />
 	</div>	
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Especialidad</label>
@@ -54,16 +59,18 @@
 				}
 			</InputSelect>
 		</div>
+		<ValidationMessage For="@(() => doctor.Speciallity)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Licence Number</label>
 		<div class="col-sm-9">
-			<InputText class="form-control" @bind-Value="@doctor.LicenseNumber"></InputText>
+			<InputText class="form-control" @bind-Value="doctor.LicenseNumber"></InputText>
 		</div>
+		<ValidationMessage For="@(() => doctor.LicenseNumber)" />
 	</div>
 	<div class="form-group row mb-1">		
 		<div class="col-sm-12">
-			<button class="btn btn-primary" @onclick="Save">Save</button>
+			<button class="btn btn-primary" @onclick="Save">Guardar</button>
 		</div>
 	</div>
 </EditForm>
@@ -81,15 +88,11 @@
 		if (!string.IsNullOrEmpty(Id))
 		{
 			doctor.Id = Id;
-			var response = await Http.PutAsJsonAsync<CreateDoctorRequest>(Url, doctor);
-			baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Doctor>>().Result;
 		}
-		else
-		{
-			var response = await Http.PostAsJsonAsync<CreateDoctorRequest>(Url, doctor);
-			baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Doctor>>().Result;
-		}		
-		NavigationManager.NavigateTo("/doctors");
+		var response = await Http.PostAsJsonAsync<CreateDoctorRequest>(Url, doctor);
+		baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Doctor>>().Result;
+		if (response.StatusCode == System.Net.HttpStatusCode.OK)
+			NavigationManager.NavigateTo("/doctors");
 	}
 	
 	protected override async Task OnInitializedAsync()

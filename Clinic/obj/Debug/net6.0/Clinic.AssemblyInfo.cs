@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Clinic")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7c82b7cffe6d9d8fef0cb9439ac245c635997c62")]
 [assembly: System.Reflection.AssemblyProductAttribute("Clinic")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Clinic")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -36,7 +36,7 @@
 			</div>
 		</div>		
 	</div>
-	<div class="col-12">
+	<div class="col-12 row">
 		<table class="table">
 			<thead>
 				<tr>
@@ -62,8 +62,8 @@
 							<td>@pac.Person.DNI</td>
 							<td>@pac.SocialWorkNumber</td>
 							<td>
-								<a href="/patientform/@pac.PatientId.ToString()">Editar</a>
-								<a href="/deletepatient/@pac.PatientId.ToString()">Eliminar</a>
+								<a class="btn btn-link" href="/patientform/@pac.PatientId.ToString()">Editar</a>
+								<a class="btn btn-link" nohref @onclick="() => OnShowModalClick(pac)">Eliminar</a>
 							</td>
 						</tr>
 					}
@@ -73,47 +73,89 @@
 	</div>
 </div>
 
+<Modal @ref="modal" Title="Modal title">
+    <BodyTemplate>
+		Deseas eliminar a paciente: @name ?
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Cerrar</Button>
+        <Button Color="ButtonColor.Primary" @onclick="Eliminar">Eliminar</Button>
+    </FooterTemplate>
+</Modal>
 
 
 @code {
 
-	private List<Patient> patients = new List<Patient>();
-	private List<Patient> allPatients = new List<Patient>();
-	public string Url = "/api/Patient/GetAll";
+    private List<Patient> patients = new List<Patient>();
+    private List<Patient> allPatients = new List<Patient>();
+    BaseResponse<Patient> baseResponse = new BaseResponse<Patient>();
+    private string name;
+    private string Id;
+    public string Url = "/api/Patient/GetAll";
+    public string UrlDelete = "/api/Patient";
 
-	protected override async Task OnInitializedAsync()
-	{
-		await LoadPatients();
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPatients();
+    }
+
+    private void CreateNew()
+    {
+        NavigationManager.NavigateTo("/patientform");
+    }
+
+    private async Task LoadPatients()
+    {
+        var response = await Http.GetFromJsonAsync<BaseResponse<List<Patient>>>(Url);
+        if (response.Success)
+        {
+            allPatients = response.Body;
+            patients = new List<Patient>(allPatients);
+        }
+    }
+
+    private void FilterByAgeRange(ChangeEventArgs e)
+    {
+        string selectedRange = e.Value.ToString();
+        if (string.IsNullOrEmpty(selectedRange) || selectedRange == "Todos")
+        {
+            patients = new List<Patient>(allPatients);
+        }
+        else
+        {
+            var ageRanges = selectedRange.Split('-');
+            int minAge = int.Parse(ageRanges[0]);
+            int maxAge = int.Parse(ageRanges[1]);
+            patients = allPatients.Where(p => p.Person.Age >= minAge && p.Person.Age <= maxAge).ToList();
+        }
+    }
+
+    private async Task Eliminar()
+    {
+        var response = await Http.DeleteAsync(UrlDelete + "?Id=" + Id);
+        baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Patient>>().Result;
+        name = string.Empty;
+        Id = string.Empty;
+		await OnHideModalClick();
+		NevigateToYourUrl();
+    }
+
+    private Modal modal;
+
+    private async Task OnShowModalClick(Patient pac)
+    {
+        name = $"{pac.Person.FirstName} {pac.Person.LastName}";
+        Id = pac.PatientId.ToString();
+		await modal?.ShowAsync();
 	}
 
-	private void CreateNew()
+	private async Task OnHideModalClick()
 	{
-		NavigationManager.NavigateTo("/patientform");
+		await modal?.HideAsync();
 	}
 
-	private async Task LoadPatients()
+	void NevigateToYourUrl()
 	{
-		var response = await Http.GetFromJsonAsync<BaseResponse<List<Patient>>>(Url);
-		if (response.Success)
-		{
-			allPatients = response.Body;
-			patients = new List<Patient>(allPatients);
-		}
-	}
-
-	private void FilterByAgeRange(ChangeEventArgs e)
-	{
-		string selectedRange = e.Value.ToString();
-		if (string.IsNullOrEmpty(selectedRange) || selectedRange == "Todos")
-		{
-			patients = new List<Patient>(allPatients);
-		}
-		else
-		{
-			var ageRanges = selectedRange.Split('-');
-			int minAge = int.Parse(ageRanges[0]);
-			int maxAge = int.Parse(ageRanges[1]);
-			patients = allPatients.Where(p => p.Person.Age >= minAge && p.Person.Age <= maxAge).ToList();
-		}
+		NavigationManager.NavigateTo("/doctors", true);
 	}
 }
