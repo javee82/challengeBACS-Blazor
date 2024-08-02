@@ -13,64 +13,59 @@
 
 <h3>Doctor Form</h3>
 
-<EditForm Model="@doctor">
+<EditForm Model="@doctor" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Nombre</label>
-		<div class="col-sm-9">
+		<div class="col-sm-6">
 			<InputText class="form-control" @bind-Value="doctor.FirstName"></InputText>
 		</div>
-		<ValidationMessage For="@(() => doctor.FirstName)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Apellido</label>
-		<div class="col-sm-9">
+		<div class="col-sm-6">
 			<InputText class="form-control" @bind-Value="doctor.LastName"></InputText>
 		</div>
-		<ValidationMessage For="@(() => doctor.LastName)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Numero de Telefono</label>
-		<div class="col-sm-9">
+		<div class="col-sm-6">
 			<InputText class="form-control" @bind-Value="doctor.PhoneNumber"></InputText>
 		</div>
-		<ValidationMessage For="@(() => doctor.PhoneNumber)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Fecha de Nacimiento</label>
-		<div class="col-sm-9">			
+		<div class="col-sm-6">			
 			<InputDate class="form-control" @bind-Value="doctor.DateOfBirth"></InputDate>
 		</div>
-		<ValidationMessage For="@(() => doctor.DateOfBirth)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">DNI</label>
-		<div class="col-sm-9">
+		<div class="col-sm-6">
 			<InputNumber class="form-control" @bind-Value="doctor.DNI"></InputNumber>
 		</div>
-		<ValidationMessage For="@(() => doctor.DNI)" />
 	</div>	
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Especialidad</label>
-		<div class="col-sm-9">
-			<InputSelect @bind-Value="@doctor.Speciallity">
+		<div class="col-sm-6">
+			<InputSelect class="form-control" @bind-Value="@doctor.Speciallity">
 				@foreach (Data.Enums.PersonEnum.MedicalSpeciallity speciallity in Enum.GetValues(typeof(Data.Enums.PersonEnum.MedicalSpeciallity)))
 				{
 					<option value="@speciallity">@speciallity.GetDisplayText()</option>
 				}
 			</InputSelect>
 		</div>
-		<ValidationMessage For="@(() => doctor.Speciallity)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Licence Number</label>
-		<div class="col-sm-9">
+		<div class="col-sm-6">
 			<InputText class="form-control" @bind-Value="doctor.LicenseNumber"></InputText>
 		</div>
-		<ValidationMessage For="@(() => doctor.LicenseNumber)" />
 	</div>
 	<div class="form-group row mb-1">		
 		<div class="col-sm-12">
-			<button class="btn btn-primary" @onclick="Save">Guardar</button>
+			<button class="btn btn-primary" type="submit">Guardar</button> @* @onclick="Save" *@
 		</div>
 	</div>
 </EditForm>
@@ -83,17 +78,6 @@
 	BaseResponse<Doctor> baseResponse = new BaseResponse<Doctor>();
 	public string Url = "/api/Doctor";
 
-	private async Task Save()
-	{
-		if (!string.IsNullOrEmpty(Id))
-		{
-			doctor.Id = Id;
-		}
-		var response = await Http.PostAsJsonAsync<CreateDoctorRequest>(Url, doctor);
-		baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Doctor>>().Result;
-		if (response.StatusCode == System.Net.HttpStatusCode.OK)
-			NavigationManager.NavigateTo("/doctors");
-	}
 	
 	protected override async Task OnInitializedAsync()
 	{
@@ -108,7 +92,7 @@
 				}
 				else
 				{
-					Console.WriteLine("Doctor not found.");
+					Console.WriteLine("Doctor no encontrado.");
 				}
 			}
 			catch (Exception ex)
@@ -116,6 +100,27 @@
 				Console.WriteLine($"Exception: {ex.Message}");
 			}
 		}
+	}
+
+	private async Task HandleValidSubmit()
+	{
+		try
+		{
+			doctor.Id = !string.IsNullOrEmpty(Id) ? Id : null;
+			var response = await Http.PostAsJsonAsync<CreateDoctorRequest>(Url, doctor);
+			baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Doctor>>().Result;
+			if (response.StatusCode == System.Net.HttpStatusCode.OK)
+				NavigationManager.NavigateTo("/doctors");
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Exception: {ex.Message}");
+		}
+	}
+
+	private void HandleInvalidSubmit()
+	{
+		Console.WriteLine("El formulario contiene errores.");
 	}
 
 	private void MapDoctorToRequest(Doctor model)

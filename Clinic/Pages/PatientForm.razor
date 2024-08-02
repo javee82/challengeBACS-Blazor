@@ -12,52 +12,48 @@
 
 <h3>Paciente Form</h3>
 
-<EditForm Model="@patient">
+<EditForm Model="@patient" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Nombre</label>
-		<div class="col-sm-9">
+		<div class="col-sm-6">
 			<InputText class="form-control" @bind-Value="patient.FirstName"></InputText>
 		</div>
-		<ValidationMessage For="@(() => patient.FirstName)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Apellido</label>
-		<div class="col-sm-9">
+		<div class="col-sm-6">
 			<InputText class="form-control" @bind-Value="patient.LastName"></InputText>
 		</div>
-		<ValidationMessage For="@(() => patient.LastName)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Numero de Telefono</label>
-		<div class="col-sm-9">
+		<div class="col-sm-6">
 			<InputText class="form-control" @bind-Value="patient.PhoneNumber"></InputText>
 		</div>
-		<ValidationMessage For="@(() => patient.PhoneNumber)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">Fecha de Nacimiento</label>
-		<div class="col-sm-9">
+		<div class="col-sm-6">
 			<InputDate class="form-control" @bind-Value="patient.DateOfBirth"></InputDate>
 		</div>
-		<ValidationMessage For="@(() => patient.DateOfBirth)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">DNI</label>
-		<div class="col-sm-9">
+		<div class="col-sm-6">
 			<InputNumber class="form-control" @bind-Value="patient.DNI"></InputNumber>
 		</div>
-		<ValidationMessage For="@(() => patient.DNI)" />
 	</div>
 	<div class="form-group row mb-1">
 		<label class="col-sm-3">N° de Obra Social</label>
-		<div class="col-sm-9">
+		<div class="col-sm-6">
 			<InputText class="form-control" @bind-Value="patient.SocialWorkNumber"></InputText>
 		</div>
-		<ValidationMessage For="@(() => patient.SocialWorkNumber)" />
 	</div>
 	<div class="form-group row mb-1">
 		<div class="col-sm-12">
-			<button class="btn btn-primary" @onclick="Save">Guardar</button>
+			<button class="btn btn-primary" type="submit">Guardar</button>
 		</div>
 	</div>
 </EditForm>
@@ -68,23 +64,7 @@
 	public string? Id { get; set; }
 	CreatePatientRequest patient = new CreatePatientRequest();
 	BaseResponse<Patient> baseResponse = new BaseResponse<Patient>();
-	public string Url = "/api/Patient";
-
-	private async Task Save()
-	{
-		if (!string.IsNullOrEmpty(Id))
-		{
-			patient.Id = Id;
-			var response = await Http.PutAsJsonAsync<CreatePatientRequest>(Url, patient);
-			baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Patient>>().Result;
-		}
-		else
-		{
-			var response = await Http.PostAsJsonAsync<CreatePatientRequest>(Url, patient);
-			baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Patient>>().Result;
-		}
-		NavigationManager.NavigateTo("/patients");
-	}
+	public string Url = "/api/Patient";	
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -107,6 +87,20 @@
 				Console.WriteLine($"Exception: {ex.Message}");
 			}
 		}
+	}
+
+	private async Task HandleValidSubmit()
+	{
+		patient.Id = !string.IsNullOrEmpty(Id) ? Id : null;
+		var response = await Http.PutAsJsonAsync<CreatePatientRequest>(Url, patient);
+		baseResponse = response.Content.ReadFromJsonAsync<BaseResponse<Patient>>().Result;
+		if (response.StatusCode == System.Net.HttpStatusCode.OK)
+			NavigationManager.NavigateTo("/patients");
+	}
+
+	private void HandleInvalidSubmit()
+	{
+		Console.WriteLine("El formulario contiene errores.");
 	}
 
 	private void MapPatientToRequest(Patient model)

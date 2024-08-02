@@ -9,69 +9,80 @@
 @inject NavigationManager NavigationManager
 
 <HeadContent>
-	<link href="css/formulario.css" rel="stylesheet" />
+	<link href="css/personas.css" rel="stylesheet" />
 </HeadContent>
 
 <h3>Pacientes</h3>
 
-<div class="row mb-2">
-	<div class="col-12 row">
-		<div class="col-8">
-			<button class="btn btn-primary" @onclick="CreateNew">Nuevo</button>
+@if (isLoading)
+{
+	<div class="center">
+		<div>
+			<Spinner Type="SpinnerType.Border" />
 		</div>
-		<div class="col-4">
-			<div class="form-group row mb-1">
-				<label for="ageRange" class="col-sm-3">Filtrar por Edad</label>
-				<div class="col-sm-9">
-					<select id="ageRange" class="form-control" @onchange="FilterByAgeRange">
-						<option value="">Todos</option>
-						<option value="0-18">0-18</option>
-						<option value="19-35">19-35</option>
-						<option value="36-50">36-50</option>
-						<option value="51-70">51-70</option>
-						<option value="71-100">71-100</option>
-					</select>
+	</div>
+}
+else
+{
+	<div class="row mb-2">
+		<div class="col-12 row">
+			<div class="col-8">
+				<button class="btn btn-primary" @onclick="CreateNew">Nuevo</button>
+			</div>
+			<div class="col-4">
+				<div class="form-group row mb-1">
+					<label for="ageRange" class="col-sm-3">Filtrar por Edad</label>
+					<div class="col-sm-9">
+						<select id="ageRange" class="form-control" @onchange="FilterByAgeRange">
+							<option value="">Todos</option>
+							<option value="0-18">0-18</option>
+							<option value="19-35">19-35</option>
+							<option value="36-50">36-50</option>
+							<option value="51-70">51-70</option>
+							<option value="71-100">71-100</option>
+						</select>
 
+					</div>
 				</div>
 			</div>
-		</div>		
-	</div>
-	<div class="col-12 row">
-		<table class="table">
-			<thead>
-				<tr>
-					<td>Nombre</td>
-					<td>Apellido</td>
-					<td>Numero de telefono</td>
-					<td>Edad</td>
-					<td>DNI</td>
-					<td>N° Obra Social</td>
-					<td></td>
-				</tr>
-			</thead>
-			<tbody>
-				@if (patients != null && allPatients.Any())
-				{
-					foreach (var pac in patients)
+		</div>
+		<div class="col-12 row">
+			<table class="table">
+				<thead>
+					<tr>
+						<td>Nombre</td>
+						<td>Apellido</td>
+						<td>Numero de telefono</td>
+						<td>Edad</td>
+						<td>DNI</td>
+						<td>N° Obra Social</td>
+						<td></td>
+					</tr>
+				</thead>
+				<tbody>
+					@if (patients != null && allPatients.Any())
 					{
-						<tr>
-							<td>@pac.Person.FirstName</td>
-							<td>@pac.Person.LastName</td>
-							<td>@pac.Person.PhoneNumber</td>
-							<td>@pac.Person.Age</td>
-							<td>@pac.Person.DNI</td>
-							<td>@pac.SocialWorkNumber</td>
-							<td>
-								<a class="btn btn-link" href="/patientform/@pac.PatientId.ToString()">Editar</a>
-								<a class="btn btn-link" nohref @onclick="() => OnShowModalClick(pac)">Eliminar</a>
-							</td>
-						</tr>
+						foreach (var pac in patients)
+						{
+							<tr>
+								<td>@pac.Person.FirstName</td>
+								<td>@pac.Person.LastName</td>
+								<td>@pac.Person.PhoneNumber</td>
+								<td>@pac.Person.Age</td>
+								<td>@pac.Person.DNI</td>
+								<td>@pac.SocialWorkNumber</td>
+								<td>
+									<a class="btn btn-link" href="/patientform/@pac.PatientId.ToString()">Editar</a>
+									<a class="btn btn-link" nohref @onclick="() => OnShowModalClick(pac)">Eliminar</a>
+								</td>
+							</tr>
+						}
 					}
-				}
-			</tbody>
-		</table>
+				</tbody>
+			</table>
+		</div>
 	</div>
-</div>
+}
 
 <Modal @ref="modal" Title="Modal title">
     <BodyTemplate>
@@ -86,32 +97,43 @@
 
 @code {
 
-    private List<Patient> patients = new List<Patient>();
-    private List<Patient> allPatients = new List<Patient>();
-    BaseResponse<Patient> baseResponse = new BaseResponse<Patient>();
-    private string name;
-    private string Id;
-    public string Url = "/api/Patient/GetAll";
-    public string UrlDelete = "/api/Patient";
+	private List<Patient> patients = new List<Patient>();
+	private List<Patient> allPatients = new List<Patient>();
+	BaseResponse<Patient> baseResponse = new BaseResponse<Patient>();
+	private string name;
+	private string Id;
+	public string Url = "/api/Patient/GetAll";
+	public string UrlDelete = "/api/Patient";
+	private bool isLoading = true;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadPatients();
-    }
+	protected override async Task OnInitializedAsync() => await LoadPatients();
 
-    private void CreateNew()
-    {
-        NavigationManager.NavigateTo("/patientform");
-    }
+	private void CreateNew()
+	{
+		NavigationManager.NavigateTo("/patientform");
+	}
 
-    private async Task LoadPatients()
-    {
-        var response = await Http.GetFromJsonAsync<BaseResponse<List<Patient>>>(Url);
-        if (response.Success)
-        {
-            allPatients = response.Body;
-            patients = new List<Patient>(allPatients);
-        }
+	private async Task LoadPatients()
+	{
+		isLoading = true;
+		try
+		{
+			var response = await Http.GetFromJsonAsync<BaseResponse<List<Patient>>>(Url);
+			if (response.Success)
+			{
+				allPatients = response.Body;
+				patients = new List<Patient>(allPatients);
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error al cargar los doctores: {ex.Message}");
+		}
+		finally
+		{
+			isLoading = false;
+		}
+		
     }
 
     private void FilterByAgeRange(ChangeEventArgs e)

@@ -7,7 +7,7 @@ namespace Clinic.Data.RequestAndResponses.Request
 	{
 		public string? Id { get; set; }
 		[Required(ErrorMessage = "El campo Especialidad es requerido")]
-		[Range(1, 10)]
+		[Range(1, 10, ErrorMessage ="Debe elegir una de las especialidades disponibles")]
 		public MedicalSpeciallity Speciallity { get; set; }
 		[Required(ErrorMessage = "El campo Numero de licencia es requerido")]
 		public string LicenseNumber { get; set; }

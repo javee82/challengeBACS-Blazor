@@ -9,50 +9,61 @@
 @inject NavigationManager NavigationManager
 
 <HeadContent>
-	<link href="css/formulario.css" rel="stylesheet" />
+	<link href="css/personas.css" rel="stylesheet" />
 </HeadContent>
 
 <h3>Doctores</h3>
 
-<div class="row">
-	<div class="col-12 mb-2">
-		<button class="btn btn-primary" @onclick="CreateNew">Nuevo</button>
+@if (isLoading)
+{
+	<div class="center">
+		<div>
+			<Spinner Type="SpinnerType.Border" />
+		</div>
+	</div>	
+}
+else
+{
+	<div class="row">
+		<div class="col-12 mb-2">
+			<button class="btn btn-primary" @onclick="CreateNew">Nuevo</button>
+		</div>
 	</div>
-</div>
 
-<table class="table">
-	<thead>
-		<tr>
-			<td>Nombre</td>
-			<td>Apellido</td>
-			<td>Numero de telefono</td>			
-			<td>DNI</td>
-			<td>Especialidad</td>
-			<td>N° de Licencia</td>
-			<td></td>
-		</tr>
-	</thead>
-	<tbody>
-		@if (response != null && response.Body != null)
-		{
-			foreach (var doc in response.Body)
+	<table class="table">
+		<thead>
+			<tr>
+				<td>Nombre</td>
+				<td>Apellido</td>
+				<td>Numero de telefono</td>
+				<td>DNI</td>
+				<td>Especialidad</td>
+				<td>N° de Licencia</td>
+				<td></td>
+			</tr>
+		</thead>
+		<tbody>
+			@if (response != null && response.Body != null)
 			{
-				<tr>
-					<td>@doc.Person.FirstName</td>
-					<td>@doc.Person.LastName</td>
-					<td>@doc.Person.PhoneNumber</td>
-					<td>@doc.Person.DNI</td>
-					<td>@doc.Speciallity.GetDisplayText()</td>
-					<td>@doc.LicenseNumber</td>
-					<td>
-						<a class="btn btn-link" href="/doctorform/@doc.DoctorId.ToString()">Editar</a>
-						<a class="btn btn-link" nohref @onclick="() => OnShowModalClick(doc)">Eliminar</a>
-					</td>
-				</tr>
+				foreach (var doc in response.Body)
+				{
+					<tr>
+						<td>@doc.Person.FirstName</td>
+						<td>@doc.Person.LastName</td>
+						<td>@doc.Person.PhoneNumber</td>
+						<td>@doc.Person.DNI</td>
+						<td>@doc.Speciallity.GetDisplayText()</td>
+						<td>@doc.LicenseNumber</td>
+						<td>
+							<a class="btn btn-link" href="/doctorform/@doc.DoctorId.ToString()">Editar</a>
+							<a class="btn btn-link" nohref @onclick="() => OnShowModalClick(doc)">Eliminar</a>
+						</td>
+					</tr>
+				}
 			}
-		}
-	</tbody>	
-</table>
+		</tbody>
+	</table>
+}
 
 <Modal @ref="modal" Title="Modal title">
 	<BodyTemplate>
@@ -72,14 +83,31 @@
 	public string Url = "/api/Doctor/GetAll";
 	BaseResponse<Doctor> baseResponse = new BaseResponse<Doctor>();
 	public BaseResponse<List<Doctor>> response = new BaseResponse<List<Doctor>>();
+	private bool isLoading = true;
 
 	private void CreateNew()
 	{
 		NavigationManager.NavigateTo("/doctorform");
-	}	
+	}
 
-	protected override async Task OnInitializedAsync() =>
-		response = await Http.GetFromJsonAsync<BaseResponse<List<Doctor>>>(Url);
+	protected override async Task OnInitializedAsync() => await LoadDoctors();
+
+	private async Task LoadDoctors()
+	{
+		isLoading = true;
+		try
+		{
+			response = await Http.GetFromJsonAsync<BaseResponse<List<Doctor>>>(Url);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error al cargar los doctores: {ex.Message}");
+		}
+		finally
+		{
+			isLoading = false;
+		}
+	}
 
 	private async Task Eliminar()
 	{
