@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using static Clinic.Data.Constants.Constants;
+using System.ComponentModel.DataAnnotations;
 
 namespace Clinic.Data.RequestAndResponses.Request
 {
@@ -12,8 +13,7 @@ namespace Clinic.Data.RequestAndResponses.Request
 		[Required(ErrorMessage = "El campo apellido es requerido")]
 		public string LastName { get; set; }
 		[Required(ErrorMessage = "El campo numero de telefono es requerido")]
-		[RegularExpression("^(?=(?:\\D*\\d){10,15}\\D*$)\\+?[0-9]{1,3}[\\s-]?(?:\\(0?[0-9]{1,5}\\)|[0-9]{1,5})[-\\s]?[0-9][\\d\\s-]{5,7}\\s?(?:x[\\d-]{0,4})?$",
-		ErrorMessage = "El número de teléfono no es válido.")]
+		[RegularExpression(PhonePattern, ErrorMessage = "El número de teléfono no es válido.")]
 		public string PhoneNumber { get; set; }
 		[Required(ErrorMessage = "El campo fecha de nacimiento es requerido")]
 		public DateTime DateOfBirth { get; set; } = DateTime.Now;
